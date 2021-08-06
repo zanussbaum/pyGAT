@@ -35,12 +35,15 @@ fib = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610]
 cuts = [-1.] + [2 ** n / 10. for n in range(0,15)] + [10000.] + [19.2, 38.4, 76.8, 153.6, 307.2, 614.4]
 cuts.sort()
 ether_cuts = cuts
-#eth_bins = list(zip(list(range(len(ether_cuts)-1)), ether_cuts[1:]))
-# date_bin -- names
-#date_bins = list(zip(list(range(len(fib)-1)), fib[1:]))
-DATASET='2021-02-15'
+
+#DATASET='2021-01-01'
+#DATASET='2021-02-15'
 #DATASET='2021-03-15'
 #DATASET='2021-05-15'
+#DATASET='2021-07-24'
+DATASET='2021-07-15'
+#DATASET='2021-06-15'
+
 PATH="./data/punks/"
 def load_data(path=PATH, dataset=DATASET):
     print('Loading {} dataset...'.format(dataset))

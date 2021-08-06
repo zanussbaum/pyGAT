@@ -26,6 +26,7 @@ parser.add_argument('--epochs', type=int, default=10000, help='Number of epochs 
 parser.add_argument('--lr', type=float, default=0.005, help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=8, help='Number of hidden units.')
+parser.add_argument('--emb_hidden', type=int, default=32, help='Number of hidden units in shared embeddings.')
 parser.add_argument('--nb_heads', type=int, default=8, help='Number of head attentions.')
 parser.add_argument('--dropout', type=float, default=0.6, help='Dropout rate (1 - keep probability).')
 parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leaky_relu.')
@@ -44,6 +45,7 @@ if args.cuda:
 # Load data
 
 # New/Hack
+N_LABELS = 22 # Need consistent softmax -- even if we never output the top bucket
 adj, features, labels, idx_train, idx_val, idx_test = load_data()
 # CORA
 #adj, features, labels, idx_train, idx_val, idx_test = load_data_old()
@@ -51,15 +53,18 @@ adj, features, labels, idx_train, idx_val, idx_test = load_data()
 # Model and optimizer
 if args.sparse:
     model = SpGAT(nfeat=features.shape[1],
+                ndim_emb=args.emb_hidden,
                 nhid=args.hidden,
-                nclass=int(labels.max()) + 1,
+                nclass=N_LABELS, #int(labels.max()) + 1,
                 dropout=args.dropout,
                 nheads=args.nb_heads,
                 alpha=args.alpha)
 else:
+    assert False, 'dense no longer supported'
     model = GAT(nfeat=features.shape[1],
+                ndim_emb=args.emb_hidden,
                 nhid=args.hidden,
-                nclass=int(labels.max()) + 1,
+                nclass=N_LABELS, #int(labels.max()) + 1,
                 dropout=args.dropout,
                 nheads=args.nb_heads,
                 alpha=args.alpha)
