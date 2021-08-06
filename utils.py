@@ -38,7 +38,11 @@ ether_cuts = cuts
 #eth_bins = list(zip(list(range(len(ether_cuts)-1)), ether_cuts[1:]))
 # date_bin -- names
 #date_bins = list(zip(list(range(len(fib)-1)), fib[1:]))
-def load_data(path="/Users/nikolai/Desktop/OffRamp/punks/hack/", dataset="2021-02-15"):
+DATASET='2021-02-15'
+#DATASET='2021-03-15'
+#DATASET='2021-05-15'
+PATH="./data/punks/"
+def load_data(path=PATH, dataset=DATASET):
     print('Loading {} dataset...'.format(dataset))
 
     # Collect all nodes
@@ -158,9 +162,9 @@ def load_data(path="/Users/nikolai/Desktop/OffRamp/punks/hack/", dataset="2021-0
     # Numpy seeds!
     np.random.shuffle(nonzero_sales)
     train_split = int(len(nonzero_sales)*TRAIN_RATIO)
-    idx_train = nonzero_sales[:train_split]
-    idx_val = nonzero_sales[train_split:]
-    idx_test = nonzero_sales[train_split:]
+    idx_train = torch.LongTensor(nonzero_sales[:train_split])
+    idx_val = torch.LongTensor(nonzero_sales[train_split:])
+    idx_test = torch.LongTensor(nonzero_sales[train_split:])
 
 
     # What we got
