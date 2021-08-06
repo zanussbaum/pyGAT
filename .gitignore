@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+embeddings/
+preds/
+.vscode
+*.pdf
+*.pkl
+data/
 # C extensions
 *.so
 

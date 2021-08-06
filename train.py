@@ -13,7 +13,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 
-from utils import load_data, load_data_old, accuracy
+from utils import load_data, load_data_old, accuracy, DATASET
 from models import GAT, SpGAT
 
 # Training settings
@@ -88,7 +88,24 @@ def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    output = model(features, adj)
+    (output, all_emb, hot_emb, dropout_emb, norm_emb, attention_norm,
+     attention2, attention3, attention4, last_layer_norm, elu) = model(features, adj)
+
+    #print('val preds bincount', np.bincount(torch.argmax(torch.exp(output[idx_train]), axis=1).cpu().detach().numpy()))
+    #print('val labels bincount', np.bincount(labels[idx_train].numpy()))
+
+    torch.save(torch.exp(output).cpu().detach().numpy(), f'preds/softmax_{DATASET}_{epoch}.pt') 
+    torch.save(all_emb, f'embeddings/all_emb_{DATASET}_{epoch}.pt')
+    torch.save(hot_emb, f'embeddings/hot_emb_{DATASET}_{epoch}.pt')
+    torch.save(dropout_emb, f'embeddings/dropout_emb_{DATASET}_{epoch}.pt')
+    torch.save(norm_emb, f'embeddings/norm_emb_{DATASET}_{epoch}.pt')
+    torch.save(attention_norm, f'embeddings/attention_norm_{DATASET}_{epoch}.pt')
+    torch.save(attention2, f'embeddings/attention2_{DATASET}_{epoch}.pt')
+    torch.save(attention3, f'embeddings/attention3_{DATASET}_{epoch}.pt')
+    torch.save(attention4, f'embeddings/attention4_{DATASET}_{epoch}.pt')
+    torch.save(last_layer_norm, f'embeddings/last_layer_norm_{DATASET}_{epoch}.pt')
+    torch.save(elu, f'embeddings/elu_{DATASET}_{epoch}.pt')
+
     loss_train = F.nll_loss(output[idx_train], labels[idx_train])
     acc_train = accuracy(output[idx_train], labels[idx_train])
     loss_train.backward()
@@ -98,7 +115,20 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        output = model(features, adj)
+        (output, all_emb, hot_emb, dropout_emb, norm_emb, attention_norm,
+     attention2, attention3, attention4, last_layer_norm, elu) = model(features, adj)
+
+        torch.save(torch.exp(output).cpu().detach().numpy(), f'preds/val_softmax_{DATASET}_{epoch}.pt') 
+        torch.save(all_emb, f'embeddings/val_all_emb_{DATASET}_{epoch}.pt')
+        torch.save(hot_emb, f'embeddings/val_hot_emb_{DATASET}_{epoch}.pt')
+        torch.save(dropout_emb, f'embeddings/val_dropout_emb_{DATASET}_{epoch}.pt')
+        torch.save(norm_emb, f'embeddings/val_norm_emb_{DATASET}_{epoch}.pt')
+        torch.save(attention_norm, f'embeddings/val_attention_norm_{DATASET}_{epoch}.pt')
+        torch.save(attention2, f'embeddings/val_attention2_{DATASET}_{epoch}.pt')
+        torch.save(attention3, f'embeddings/val_attention3_{DATASET}_{epoch}.pt')
+        torch.save(attention4, f'embeddings/val_attention4_{DATASET}_{epoch}.pt')
+        torch.save(last_layer_norm, f'embeddings/val_last_layer_norm_{DATASET}_{epoch}.pt')
+        torch.save(elu, f'embeddings/val_elu_{DATASET}_{epoch}.pt')
 
     loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     acc_val = accuracy(output[idx_val], labels[idx_val])

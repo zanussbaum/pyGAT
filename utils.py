@@ -39,12 +39,20 @@ ether_cuts = cuts
 #DATASET='2021-01-01'
 #DATASET='2021-02-15'
 #DATASET='2021-03-15'
-#DATASET='2021-05-15'
-#DATASET='2021-07-24'
+DATASET='2021-05-15'
 DATASET='2021-07-15'
-#DATASET='2021-06-15'
 
 PATH="./data/punks/"
+
+
+def load_df(path=PATH, dataset=DATASET):
+    punk_df = pd.read_json(path+'punk_nodes.jsonl', lines=True) 
+    bid_df = pd.read_json(path+'bid_nodes.jsonl', lines=True)
+    edges_df = pd.read_json(path+dataset+'_edges.jsonl', lines=True)
+
+    return punk_df, bid_df, edges_df
+
+
 def load_data(path=PATH, dataset=DATASET):
     print('Loading {} dataset...'.format(dataset))
 

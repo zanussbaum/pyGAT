@@ -1,4 +1,5 @@
 import torch
+from torch.functional import norm
 import torch.nn as nn
 import torch.nn.functional as F
 from layers import GraphAttentionLayer, SpGraphAttentionLayer
@@ -104,7 +105,7 @@ class SpGAT(nn.Module):
 
         # Multiply the (sparse) onehot vector with embeddings.
         hot_emb = torch.mm(x_in, all_emb)
-        x = hot_emb
+        hot_emb
         if debug:
             print(all_emb.shape)
             print(hot_emb.shape)
@@ -112,36 +113,36 @@ class SpGAT(nn.Module):
             print('----')
 
         # Do we need dropout on embedding layers?
-        x = F.dropout(x, self.dropout, training=self.training)
+        dropout_emb = F.dropout(hot_emb, self.dropout, training=self.training)
 
         # Apply norm after embeddings -- else model blows up
-        x = self.norm_emb(x)
+        norm_emb = self.norm_emb(dropout_emb)
 
         if debug:
-            print(x)
-            print(x.shape)
+            print(norm_emb)
+            print(norm_emb.shape)
 
         # First round of attentions
-        x = torch.cat([att(x, adj) for att in self.attentions], dim=1)
+        attention = torch.cat([att(norm_emb, adj) for att in self.attentions], dim=1)
         if debug:
-            print(x.shape)
-        x = F.dropout(x, self.dropout, training=self.training)
+            print(attention.shape)
+        drop2 = F.dropout(attention, self.dropout, training=self.training)
         # layer norm
-        x = self.norm_att(x)
+        attention_norm = self.norm_att(drop2)
 
         if debug:
-            print(x.shape)
+            print(attention_norm.shape)
 
         # Second round of attentions
-        x = torch.cat([att(x, adj) for att in self.attentions_two], dim=1)
+        attention2 = torch.cat([att(attention_norm, adj) for att in self.attentions_two], dim=1)
         if debug:
-            print(x.shape)
-        x = F.dropout(x, self.dropout, training=self.training)
+            print(attention2.shape)
+        drop3 = F.dropout(attention2, self.dropout, training=self.training)
         # layer norm
-        x = self.norm_att_two(x)
+        attention3 = self.norm_att_two(drop3)
 
         if debug:
-            print(x.shape)
+            print(attention3.shape)
 
         """
         # Third round of attentions
@@ -158,21 +159,21 @@ class SpGAT(nn.Module):
 
         # Final round of attention(s)
         #x = self.out_att(x, adj)
-        x = torch.cat([att(x, adj) for att in self.attentions_final], dim=1)
+        attention4 = torch.cat([att(attention3, adj) for att in self.attentions_final], dim=1)
 
         # Skip dropout before final layer?
-        x = F.dropout(x, self.dropout, training=self.training)
+        last_drop = F.dropout(attention4, self.dropout, training=self.training)
         # layer norm
-        x = self.norm_att_final(x)
+        last_layer_norm = self.norm_att_final(last_drop)
 
         # Non-linearity?
-        x = F.elu(x)
+        elu = F.elu(last_layer_norm)
         if debug:
-            print(x.shape)
+            print(elu.shape)
 
         # TODO: Insert small MLP to final embedding dimension.
-        out = F.log_softmax(self.out_head(x), dim=1)
+        out = F.log_softmax(self.out_head(elu), dim=1)
         if debug:
             print(out.shape)
-        return out
+        return out, all_emb, hot_emb, dropout_emb, norm_emb, attention_norm, attention2, attention3, attention4, last_layer_norm, elu
 
