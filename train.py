@@ -88,8 +88,8 @@ def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    (output, all_emb, hot_emb, dropout_emb, norm_emb, attention_norm,
-     attention2, attention3, attention4, last_layer_norm, elu) = model(features, adj)
+    (output, all_emb, hot_emb, dropout_emb, norm_emb, attention, 
+     attention_norm, attention2, attention3, attention4, last_layer_norm, elu) = model(features, adj)
 
     #print('val preds bincount', np.bincount(torch.argmax(torch.exp(output[idx_train]), axis=1).cpu().detach().numpy()))
     #print('val labels bincount', np.bincount(labels[idx_train].numpy()))
@@ -99,6 +99,7 @@ def train(epoch):
     torch.save(hot_emb, f'embeddings/hot_emb_{DATASET}_{epoch}.pt')
     torch.save(dropout_emb, f'embeddings/dropout_emb_{DATASET}_{epoch}.pt')
     torch.save(norm_emb, f'embeddings/norm_emb_{DATASET}_{epoch}.pt')
+    torch.save(attention, f'embeddings/attention_{DATASET}_{epoch}.pt')
     torch.save(attention_norm, f'embeddings/attention_norm_{DATASET}_{epoch}.pt')
     torch.save(attention2, f'embeddings/attention2_{DATASET}_{epoch}.pt')
     torch.save(attention3, f'embeddings/attention3_{DATASET}_{epoch}.pt')
@@ -115,14 +116,15 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        (output, all_emb, hot_emb, dropout_emb, norm_emb, attention_norm,
-     attention2, attention3, attention4, last_layer_norm, elu) = model(features, adj)
+        (output, all_emb, hot_emb, dropout_emb, norm_emb, attention, 
+     attention_norm, attention2, attention3, attention4, last_layer_norm, elu) = model(features, adj)
 
         torch.save(torch.exp(output).cpu().detach().numpy(), f'preds/val_softmax_{DATASET}_{epoch}.pt') 
         torch.save(all_emb, f'embeddings/val_all_emb_{DATASET}_{epoch}.pt')
         torch.save(hot_emb, f'embeddings/val_hot_emb_{DATASET}_{epoch}.pt')
         torch.save(dropout_emb, f'embeddings/val_dropout_emb_{DATASET}_{epoch}.pt')
         torch.save(norm_emb, f'embeddings/val_norm_emb_{DATASET}_{epoch}.pt')
+        torch.save(attention, f'embeddings/val_attention_{DATASET}_{epoch}.pt')
         torch.save(attention_norm, f'embeddings/val_attention_norm_{DATASET}_{epoch}.pt')
         torch.save(attention2, f'embeddings/val_attention2_{DATASET}_{epoch}.pt')
         torch.save(attention3, f'embeddings/val_attention3_{DATASET}_{epoch}.pt')

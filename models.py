@@ -175,5 +175,5 @@ class SpGAT(nn.Module):
         out = F.log_softmax(self.out_head(elu), dim=1)
         if debug:
             print(out.shape)
-        return out, all_emb, hot_emb, dropout_emb, norm_emb, attention_norm, attention2, attention3, attention4, last_layer_norm, elu
+        return out, all_emb, hot_emb, dropout_emb, norm_emb, attention, attention_norm, attention2, attention3, attention4, last_layer_norm, elu
 
