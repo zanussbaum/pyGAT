@@ -13,7 +13,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 
-from utils import load_data, accuracy
+from utils import load_data, load_data_old, accuracy
 from models import GAT, SpGAT
 
 # Training settings
@@ -32,6 +32,7 @@ parser.add_argument('--alpha', type=float, default=0.2, help='Alpha for the leak
 parser.add_argument('--patience', type=int, default=100, help='Patience')
 
 args = parser.parse_args()
+print(args)
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 random.seed(args.seed)
@@ -41,25 +42,29 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Load data
+
+# New/Hack
 adj, features, labels, idx_train, idx_val, idx_test = load_data()
+# CORA
+#adj, features, labels, idx_train, idx_val, idx_test = load_data_old()
 
 # Model and optimizer
 if args.sparse:
-    model = SpGAT(nfeat=features.shape[1], 
-                nhid=args.hidden, 
-                nclass=int(labels.max()) + 1, 
-                dropout=args.dropout, 
-                nheads=args.nb_heads, 
+    model = SpGAT(nfeat=features.shape[1],
+                nhid=args.hidden,
+                nclass=int(labels.max()) + 1,
+                dropout=args.dropout,
+                nheads=args.nb_heads,
                 alpha=args.alpha)
 else:
-    model = GAT(nfeat=features.shape[1], 
-                nhid=args.hidden, 
-                nclass=int(labels.max()) + 1, 
-                dropout=args.dropout, 
-                nheads=args.nb_heads, 
+    model = GAT(nfeat=features.shape[1],
+                nhid=args.hidden,
+                nclass=int(labels.max()) + 1,
+                dropout=args.dropout,
+                nheads=args.nb_heads,
                 alpha=args.alpha)
-optimizer = optim.Adam(model.parameters(), 
-                       lr=args.lr, 
+optimizer = optim.Adam(model.parameters(),
+                       lr=args.lr,
                        weight_decay=args.weight_decay)
 
 if args.cuda:
